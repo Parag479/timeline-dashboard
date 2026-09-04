@@ -42,7 +42,7 @@ function fmtHour(date: Date) { return new Intl.DateTimeFormat('en-IN', { hour: '
 function fmtDate(date: Date) { return new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: 'numeric', timeZone: IST }).format(date); }
 function istDateTime(date: string, time: string) { return new Date(`${date}T${time}:00+05:30`); }
 function windowFor(date: string, choice: Choice) { const starts = [...choice.shift.shift_timings].sort(); const start = starts[choice.index] || starts[0]; const end = starts[(choice.index + 1) % starts.length] || start; const from = istDateTime(date, start); const to = istDateTime(date, end); if (to <= from) to.setUTCDate(to.getUTCDate() + 1); return { from, to, start, end }; }
-function shiftChoices(shifts: Shift[]): Choice[] { return shifts.filter(s => s.is_active !== false).flatMap(shift => shift.shift_timings.map((time, index) => ({ id: `${shift.id}-${index}`, label: `${shift.name} · ${time} – ${shift.shift_timings[(index + 1) % shift.shift_timings.length]}`, shift, index }))); }
+function shiftChoices(shifts: Shift[]): Choice[] { return shifts.filter(s => s.is_active !== false).flatMap(shift => { const timings = [...shift.shift_timings].sort(); return timings.map((time, index) => ({ id: `${shift.id}-${index}`, label: `${shift.name} · ${time} – ${timings[(index + 1) % timings.length]}`, shift: { ...shift, shift_timings: timings }, index })); }); }
 
 function Login({ onLogin }: { onLogin: (user: User) => void }) {
   const [username, setUsername] = useState('analytics_user'); const [password, setPassword] = useState('dashboard123'); const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
